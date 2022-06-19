@@ -1,22 +1,45 @@
 const asyncHandler = require('express-async-handler')
+const Post = require('../models/posts')
 
 // Get posts
 // get routes /api/posts
 const getPosts = asyncHandler(async (req, res) => {
-	res.status(200).json({ message: 'Get posts' })
+	const posts = await Post.find()
+
+	res.status(200).json(posts)
 })
 const setPost = asyncHandler(async (req, res) => {
-	if (!req.body.text) {
+	if (!req.body.text && !req.body.title) {
 		res.status(400)
 		throw new Error(); ({ message: "Please andd a blog post" })
 	}
-	res.status(200).json({ message: 'create a post' })
+	const post = await Post.create({
+		title: req.body.title,
+		text: req.body.text,
+
+	})
+	res.status(200).json(post)
 })
 const updatePost = asyncHandler(async (req, res) => {
-	res.status(200).json({ message: `update a post ${req.params.id}` })
+	const post = await Post.findById(req.params.id)
+	if (!post) {
+		res.status(400)
+		throw new Error("Post not found")
+	}
+
+	const updatedPost = await Post.findByIdAndUpdate(req.params.id, req.body, {
+		new: true
+	})
+	res.status(200).json(updatedPost)
 })
 const deletePost = asyncHandler(async (req, res) => {
-	res.status(200).json({ message: `delete a post ${req.params.id}` })
+	const post = await Post.findById(req.params.id)
+	if (!post) {
+		res.status(400)
+		throw new Error("Post not found")
+	}
+	await post.remove()
+	res.status(200).json({ id: req.params.id })
 })
 module.exports = {
 	getPosts,
