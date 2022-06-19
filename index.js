@@ -1,33 +1,25 @@
 const express = require("express");
+const dotenv = require('dotenv').config;
 const authRoutes = require('./routes/auth')
-const app = express();
 
+const { errorHandler } = require('./middleware/errorMiddleware')
+
+const app = express();
 // view engine
-app.set('view engine', 'ejs');
+// app.set('view engine', 'ejs');
 
 app.use(authRoutes);
 
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
 
-// const posts = [
-// 	{
-// 		username: "Destiny",
-// 		post: "Excellent Flutter Dev"
-// 	},
-// 	{
-// 		username: "Doris",
-// 		post: "Excellent Vue Dev"
-// 	}
-// ]
-
-// app.get('/posts', (req, res) => {
-// 	res.json(posts)
-// })
 // app.get('/login', (req, res) => {
 // 	res.json(posts)
 // })
 
 // app.use("/auth", require("./routes/auth"));
-// app.use("/posts", require("./routes/posts"));
+app.use("/api/posts", require("./routes/post"));
+app.use(errorHandler)
 
 app.listen(5000, () => {
 	console.log("Listening on port 5000");
