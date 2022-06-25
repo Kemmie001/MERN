@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: false }))
 // 	res.json(posts)
 // })
 
-// app.use("/auth", require("./routes/auth"));
+app.use("/api/auth", require("./routes/auth"));
 app.use("/api/posts", require("./routes/post"));
 app.use(errorHandler)
 
