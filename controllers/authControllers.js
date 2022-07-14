@@ -35,21 +35,52 @@ const registerUser = asyncHandler(async(req, res) => {
 		res.status(201).json({
 			id: user._id,
 			name: user.name,
-			email: user.email
+			email: user.email,
+			token: generateToken(user._id)
 		})
-	}else{
+	} else {
 		res.status(404)
 		throw new Error ('Invalid user details')
 	}
 
 })
 const loginUser = asyncHandler(async(req, res) => {
-	res.json({message: "login user"})
-})
-const getMe = asyncHandler(async(req, res) => {
-	res.json({message: "User detail display"})
+	const {email, password} = req.body
+
+	// check for user email
+	const user = await User.findOne({email})
+
+	if(user && (await bycrypt.compare(password, user.password))){
+		res.json({
+			id: user._id,
+			name: user.name,
+			email: user.email,
+			token: generateToken(user._id)
+		})	
+	} else {
+		res.status(404)
+		throw new Error ('Invalid login credentials')
+	}
 })
 
+// Get
+// Private  route
+const getMe = asyncHandler(async(req, res) => {
+	const {_id, name, email} = await User.findById(req.user.id)
+	res.status(200).json({
+		id: _id,
+		name: name,
+		email: email
+	})
+})
+
+
+// Generate a 	JWT
+const generateToken = (id) => {
+	return jwt.sign({ id}, process.env.JWT_SECRET, {
+		expiresIn: '30d'
+	})
+}
 module.exports = {
 	registerUser,
 	loginUser,getMe
